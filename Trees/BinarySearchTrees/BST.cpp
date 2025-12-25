@@ -189,6 +189,14 @@ private:
         else u->parent->right = v;
         if (v) v->parent = u->parent;
     }
+    void updateHeight(Node* x) {
+        while (x) {
+            int nh = max(height(x->left), height(x->right)) + 1;
+            if (x->height == nh) break;
+            x->height = nh;
+            x = x->parent;
+        }
+    }
 
 public:
     BST() : root(nullptr), nodes(0) {}
@@ -220,13 +228,7 @@ public:
         } else {
             parent->right = newNode;
         }
-        Node* p = parent;
-        while (p) {
-            int newH = max(childHeight(p->left), childHeight(p->right)) + 1;
-            if (newH == p->height) break;
-            p->height = newH;
-            p = p->parent;
-        }
+        updateHeight(parent);
     }
     void Tree_search(int key) {
         Node* node = search(key);
@@ -350,12 +352,18 @@ public:
     void Tree_delete(int key) {
         Node *z = search(key);
         if (!z) return;
-        if (z->left == nullptr)
+        Node *start = z->parent;
+        if (z->left == nullptr) {
             transplant(z, z->right);
-        else if (z->right == nullptr)
+            if (z->right) start = z->right->parent;
+        }
+        else if (z->right == nullptr) {
             transplant(z, z->left);
+            if (z->left) start = z->left->parent;
+        }
         else {
             Node *y = subtreeMin(z->right);
+            Node *yParent = y->parent;
             if (y->parent != z) {
                 transplant(y, y->right);
                 y->right = z->right;
@@ -364,9 +372,11 @@ public:
             transplant(z, y);
             y->left = z->left;
             z->left->parent = y;
+            start = (yParent != z) ? yParent : y;
         }
         delete z;
         nodes--;
+        updateHeight(start);
     }
 };
 
@@ -377,6 +387,5 @@ int main() {
         int x; cin >> x;
         tree.Insert(x);
     }
-    cout << "Leaf nodes: " << endl;
-    tree.PrintLeafNodes();
+    return 0;
 }

@@ -2,7 +2,6 @@
 #include <vector>
 #include <utility>
 #include <queue>
-#include <algorithm>
 using namespace std;
 
 struct Node {
@@ -312,7 +311,6 @@ public:
             int bfact = balance_factor(t);
             if (bfact > 1 || bfact < -1) {
                 balance_node(t, bfact);
-                break; // one rebalance is enough
             } else {
                 t = t->parent;
             }
@@ -465,7 +463,7 @@ public:
         }
         delete z;
         nodes--;
-        Node* cur = node;
+        Node* cur = node ? node : root;
         while (cur) {
             update_height(cur);
             int bf = balance_factor(cur);
